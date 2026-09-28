@@ -1,0 +1,3168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>StudyFlow — Student Dashboard</title>
+
+<style>
+
+/* =========================================================
+   ROOT / THEME
+========================================================= */
+
+:root{
+    --bg:#070a11;
+    --bg2:#0b0f18;
+    --surface:#101521;
+    --surface2:#151c2a;
+    --surface3:#1b2333;
+
+    --text:#eef2ff;
+    --muted:#8994ad;
+    --line:#252d40;
+
+    --primary:#7167ff;
+    --primary2:#9b6cff;
+    --green:#20c997;
+    --orange:#f5a623;
+    --red:#ff5c7a;
+
+    --shadow:0 20px 55px rgba(0,0,0,.38);
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    overflow-x:hidden;
+}
+
+
+/* =========================================================
+   ANIMATED BACKGROUND
+========================================================= */
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:-20%;
+    z-index:-3;
+
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(113,103,255,.18),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 85% 25%,
+            rgba(155,108,255,.12),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 50% 90%,
+            rgba(32,201,151,.07),
+            transparent 28%
+        );
+
+    animation:
+        ambientMove 14s ease-in-out infinite alternate;
+
+    pointer-events:none;
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-2;
+
+    background:
+        linear-gradient(
+            rgba(255,255,255,.012) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.012) 1px,
+            transparent 1px
+        );
+
+    background-size:50px 50px;
+    pointer-events:none;
+}
+
+@keyframes ambientMove{
+    0%{
+        transform:scale(1);
+        opacity:.65;
+    }
+
+    100%{
+        transform:scale(1.15) translate(2%, -2%);
+        opacity:1;
+    }
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-track{
+    background:#080b12;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#2c354a;
+    border-radius:20px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    background:#46516d;
+}
+
+
+/* =========================================================
+   MAIN LAYOUT
+========================================================= */
+
+.app{
+    min-height:100vh;
+}
+
+.layout{
+    display:grid;
+    grid-template-columns:245px 1fr;
+    min-height:100vh;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar{
+    position:sticky;
+    top:0;
+    height:100vh;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(18,23,36,.97),
+            rgba(8,11,18,.98)
+        );
+
+    border-right:1px solid var(--line);
+
+    padding:25px 17px;
+
+    display:flex;
+    flex-direction:column;
+
+    z-index:50;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:11px;
+
+    padding:0 10px 30px;
+
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:-.5px;
+}
+
+.brandmark{
+    width:38px;
+    height:38px;
+
+    border-radius:12px;
+
+    display:grid;
+    place-items:center;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--primary2)
+        );
+
+    box-shadow:
+        0 8px 25px rgba(113,103,255,.35);
+
+    font-size:20px;
+
+    animation:
+        logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat{
+    0%,100%{
+        transform:translateY(0);
+    }
+
+    50%{
+        transform:translateY(-4px);
+    }
+}
+
+
+/* NAV */
+
+.nav{
+    display:grid;
+    gap:6px;
+}
+
+.nav button{
+    width:100%;
+
+    border:1px solid transparent;
+    background:transparent;
+
+    color:#9fa8bd;
+
+    text-align:left;
+
+    padding:12px 13px;
+
+    border-radius:11px;
+
+    font-size:14px;
+
+    cursor:pointer;
+
+    transition:
+        .25s ease;
+
+    position:relative;
+}
+
+.nav button span{
+    display:inline-block;
+    width:25px;
+    font-size:16px;
+}
+
+.nav button:hover{
+    color:#fff;
+    background:#171e2e;
+    transform:translateX(3px);
+}
+
+.nav button.active{
+    color:#fff;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(113,103,255,.23),
+            rgba(113,103,255,.08)
+        );
+
+    border-color:
+        rgba(113,103,255,.22);
+}
+
+.nav button.active::before{
+    content:"";
+
+    position:absolute;
+    left:-17px;
+    top:9px;
+    bottom:9px;
+
+    width:3px;
+
+    background:
+        linear-gradient(
+            180deg,
+            var(--primary),
+            var(--primary2)
+        );
+
+    border-radius:0 5px 5px 0;
+}
+
+
+/* SIDEBAR GOAL */
+
+.side-bottom{
+    margin-top:auto;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(31,39,58,.9),
+            rgba(16,21,33,.9)
+        );
+
+    border:
+        1px solid var(--line);
+
+    border-radius:16px;
+
+    padding:15px;
+
+    color:#aab3c7;
+
+    font-size:12px;
+    line-height:1.5;
+
+    box-shadow:
+        0 15px 35px rgba(0,0,0,.25);
+}
+
+.side-bottom strong{
+    display:block;
+    color:#fff;
+    font-size:14px;
+    margin-bottom:4px;
+}
+
+.side-goal{
+    margin-top:8px;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+main{
+    padding:28px 32px 45px;
+    max-width:1550px;
+    width:100%;
+    margin:auto;
+}
+
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    margin-bottom:25px;
+
+    padding-bottom:5px;
+}
+
+.greeting h1{
+    font-size:27px;
+    letter-spacing:-.8px;
+    color:#fff;
+}
+
+.greeting p{
+    margin-top:6px;
+
+    color:var(--muted);
+
+    font-size:13px;
+}
+
+
+/* PROFILE */
+
+.profile{
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    position:relative;
+}
+
+.date{
+    color:var(--muted);
+    font-size:11px;
+    letter-spacing:.8px;
+    font-weight:700;
+}
+
+.avatar{
+    width:43px;
+    height:43px;
+
+    border-radius:50%;
+
+    display:grid;
+    place-items:center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #756cff,
+            #b56cff
+        );
+
+    color:#fff;
+
+    font-size:13px;
+    font-weight:800;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 8px 25px rgba(113,103,255,.28);
+
+    transition:.25s ease;
+}
+
+.avatar:hover{
+    transform:scale(1.08);
+    box-shadow:
+        0 0 0 7px rgba(113,103,255,.08),
+        0 10px 30px rgba(113,103,255,.35);
+}
+
+
+/* PROFILE MENU */
+
+.profile-menu{
+    position:absolute;
+
+    right:0;
+    top:55px;
+
+    width:185px;
+
+    background:#111827;
+
+    border:
+        1px solid #293247;
+
+    border-radius:14px;
+
+    padding:7px;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,.5);
+
+    display:none;
+
+    z-index:100;
+
+    animation:
+        menuOpen .2s ease;
+}
+
+.profile-menu.show{
+    display:block;
+}
+
+@keyframes menuOpen{
+    from{
+        opacity:0;
+        transform:translateY(-7px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.profile-menu button{
+    width:100%;
+
+    border:0;
+    background:transparent;
+
+    color:#e8ecf7;
+
+    text-align:left;
+
+    padding:10px 11px;
+
+    border-radius:9px;
+
+    cursor:pointer;
+
+    font-size:12px;
+}
+
+.profile-menu button:hover{
+    background:#1d2540;
+}
+
+.profile-menu .logout{
+    color:#ff718b;
+}
+
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.grid{
+    display:grid;
+
+    grid-template-columns:
+        1.35fr
+        1fr
+        1fr;
+
+    gap:18px;
+}
+
+.wide{
+    grid-column:span 2;
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card{
+    position:relative;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(17,23,36,.96),
+            rgba(12,17,27,.96)
+        );
+
+    border:
+        1px solid var(--line);
+
+    border-radius:18px;
+
+    padding:19px;
+
+    box-shadow:
+        var(--shadow);
+
+    overflow:hidden;
+
+    animation:
+        fadeUp .65s ease both;
+
+    transition:
+        transform .3s ease,
+        border-color .3s ease,
+        box-shadow .3s ease;
+}
+
+.card::before{
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(113,103,255,.06),
+            transparent 35%
+        );
+
+    pointer-events:none;
+}
+
+.card:hover{
+    transform:translateY(-4px);
+
+    border-color:
+        rgba(113,103,255,.28);
+
+    box-shadow:
+        0 25px 65px rgba(0,0,0,.48);
+}
+
+.card h3{
+    position:relative;
+
+    font-size:15px;
+    margin-bottom:4px;
+}
+
+.sub{
+    position:relative;
+
+    color:var(--muted);
+
+    font-size:11px;
+}
+
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes fadeUp{
+    from{
+        opacity:0;
+        transform:translateY(18px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@keyframes float{
+    0%,100%{
+        transform:translateY(0);
+    }
+
+    50%{
+        transform:translateY(-6px);
+    }
+}
+
+@keyframes pulse{
+    0%,100%{
+        box-shadow:
+            0 0 0 0 rgba(113,103,255,.2);
+    }
+
+    50%{
+        box-shadow:
+            0 0 0 9px rgba(113,103,255,0);
+    }
+}
+
+
+/* =========================================================
+   HERO / NOW OR NEVER IMAGE
+========================================================= */
+
+.image-card{
+    min-height:450px;
+}
+
+.hero-wrap{
+    position:relative;
+
+    width:100%;
+    height:280px;
+
+    margin-top:15px;
+
+    border-radius:15px;
+
+    overflow:hidden;
+
+    border:1px solid #2a3347;
+
+    background:#090d15;
+}
+
+.hero-image{
+    width:100%;
+    height:100%;
+
+    display:block;
+
+    object-fit:cover;
+
+    object-position:center;
+
+    filter:
+        brightness(.54)
+        contrast(1.12)
+        saturate(.85);
+
+    transform:scale(1.01);
+
+    animation:
+        heroZoom 14s ease-in-out infinite alternate;
+}
+
+@keyframes heroZoom{
+    from{
+        transform:scale(1.01);
+    }
+
+    to{
+        transform:scale(1.09);
+    }
+}
+
+.hero-wrap::after{
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(0,0,0,.05) 0%,
+            rgba(0,0,0,.2) 30%,
+            rgba(0,0,0,.88) 100%
+        );
+
+    pointer-events:none;
+}
+
+.hero-text{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:
+        translate(-50%,-50%);
+
+    z-index:3;
+
+    text-align:center;
+
+    width:90%;
+
+    color:#fff;
+
+    font-size:
+        clamp(28px,4.3vw,55px);
+
+    font-weight:950;
+
+    letter-spacing:4px;
+
+    text-shadow:
+        0 5px 30px rgba(0,0,0,.95);
+
+    white-space:nowrap;
+
+    animation:
+        heroText 3s ease-in-out infinite alternate;
+}
+
+.hero-small{
+    position:absolute;
+
+    left:50%;
+    bottom:24px;
+
+    transform:translateX(-50%);
+
+    z-index:4;
+
+    color:#e7eaff;
+
+    font-size:10px;
+
+    letter-spacing:3px;
+
+    text-transform:uppercase;
+
+    opacity:.8;
+}
+
+@keyframes heroText{
+    from{
+        letter-spacing:2px;
+        opacity:.85;
+        transform:translate(-50%,-50%) scale(.98);
+    }
+
+    to{
+        letter-spacing:7px;
+        opacity:1;
+        transform:translate(-50%,-50%) scale(1.02);
+    }
+}
+
+
+/* =========================================================
+   TIMETABLE
+========================================================= */
+
+.timetable{
+    margin-top:14px;
+
+    display:grid;
+    gap:9px;
+}
+
+.class{
+    display:grid;
+
+    grid-template-columns:
+        72px
+        1fr
+        auto;
+
+    align-items:center;
+
+    padding:11px 13px;
+
+    border-radius:12px;
+
+    background:#121927;
+
+    border:1px solid #252e42;
+
+    transition:.25s ease;
+}
+
+.class:hover{
+    transform:translateX(5px);
+
+    background:#182036;
+
+    border-color:#38435d;
+}
+
+.class.now{
+    background:
+        linear-gradient(
+            90deg,
+            rgba(113,103,255,.18),
+            rgba(113,103,255,.06)
+        );
+
+    border-color:
+        rgba(113,103,255,.4);
+
+    box-shadow:
+        inset 3px 0 0 var(--primary);
+}
+
+.time{
+    color:#8792aa;
+
+    font-size:11px;
+    font-weight:700;
+}
+
+.subject{
+    font-size:13px;
+    font-weight:750;
+}
+
+.teacher{
+    color:var(--muted);
+
+    font-size:10px;
+
+    margin-top:2px;
+}
+
+.tag{
+    padding:5px 8px;
+
+    border-radius:999px;
+
+    background:
+        rgba(113,103,255,.14);
+
+    color:#9e96ff;
+
+    font-size:9px;
+
+    font-weight:800;
+
+    letter-spacing:.3px;
+}
+
+.tag.green{
+    background:
+        rgba(32,201,151,.12);
+
+    color:#40d8ad;
+}
+
+.tag.orange{
+    background:
+        rgba(245,166,35,.12);
+
+    color:#ffba55;
+}
+
+
+/* =========================================================
+   ASSIGNMENTS
+========================================================= */
+
+.assignments{
+    display:grid;
+
+    gap:13px;
+
+    margin-top:15px;
+}
+
+.assignment{
+    display:grid;
+
+    grid-template-columns:
+        1fr
+        45px;
+
+    gap:10px;
+}
+
+.assignment-title{
+    font-size:12px;
+    font-weight:700;
+}
+
+.assignment small{
+    color:var(--muted);
+    font-size:10px;
+}
+
+.pct{
+    text-align:right;
+
+    color:var(--muted);
+
+    font-size:11px;
+}
+
+.bar{
+    height:6px;
+
+    background:#252d40;
+
+    border-radius:20px;
+
+    margin-top:7px;
+
+    overflow:hidden;
+}
+
+.fill{
+    height:100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--primary),
+            var(--primary2)
+        );
+
+    border-radius:20px;
+
+    position:relative;
+
+    overflow:hidden;
+}
+
+.fill::after{
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.3),
+            transparent
+        );
+
+    transform:translateX(-100%);
+
+    animation:
+        progressShine 2.8s infinite;
+}
+
+@keyframes progressShine{
+    to{
+        transform:translateX(100%);
+    }
+}
+
+
+/* =========================================================
+   POMODORO
+========================================================= */
+
+.timer{
+    text-align:center;
+}
+
+.timer-circle{
+    width:155px;
+    height:155px;
+
+    border-radius:50%;
+
+    margin:15px auto 13px;
+
+    background:
+        conic-gradient(
+            var(--primary) 0 67%,
+            #252d40 67% 100%
+        );
+
+    display:grid;
+    place-items:center;
+
+    box-shadow:
+        0 0 35px rgba(113,103,255,.1);
+
+    animation:
+        timerGlow 3s ease-in-out infinite;
+}
+
+@keyframes timerGlow{
+    0%,100%{
+        box-shadow:
+            0 0 25px rgba(113,103,255,.08);
+    }
+
+    50%{
+        box-shadow:
+            0 0 45px rgba(113,103,255,.18);
+    }
+}
+
+.timer-inner{
+    width:132px;
+    height:132px;
+
+    border-radius:50%;
+
+    background:#101521;
+
+    border:1px solid #252d40;
+
+    display:grid;
+    place-items:center;
+}
+
+.timer-time{
+    font-size:30px;
+
+    font-weight:850;
+
+    letter-spacing:1px;
+}
+
+.timer-mode{
+    color:var(--muted);
+
+    font-size:10px;
+
+    margin-top:2px;
+
+    letter-spacing:1px;
+}
+
+.timer-actions{
+    display:flex;
+
+    justify-content:center;
+
+    gap:8px;
+}
+
+
+/* BUTTONS */
+
+.btn{
+    border:0;
+
+    border-radius:10px;
+
+    padding:9px 15px;
+
+    font-size:11px;
+
+    font-weight:750;
+
+    cursor:pointer;
+
+    transition:.22s ease;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+}
+
+.primary{
+    color:#fff;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--primary2)
+        );
+
+    box-shadow:
+        0 7px 20px rgba(113,103,255,.22);
+}
+
+.ghost{
+    background:#1b2333;
+
+    color:#dce2f2;
+
+    border:1px solid #293247;
+}
+
+
+/* =========================================================
+   TODO
+========================================================= */
+
+.todo-list{
+    display:grid;
+
+    gap:9px;
+
+    margin-top:14px;
+}
+
+.todo{
+    display:flex;
+
+    align-items:center;
+
+    gap:9px;
+
+    font-size:12px;
+
+    padding:4px 0;
+
+    transition:.2s;
+}
+
+.todo:hover{
+    transform:translateX(3px);
+}
+
+.todo input{
+    width:15px;
+    height:15px;
+
+    accent-color:var(--primary);
+
+    cursor:pointer;
+}
+
+.todo.done span{
+    text-decoration:line-through;
+
+    color:#606a80;
+}
+
+.add-row{
+    display:flex;
+
+    gap:7px;
+
+    margin-top:13px;
+}
+
+.add-row input{
+    min-width:0;
+
+    flex:1;
+
+    border:
+        1px solid #293247;
+
+    background:#0d131f;
+
+    color:#fff;
+
+    border-radius:9px;
+
+    padding:9px 10px;
+
+    outline:none;
+
+    font:inherit;
+
+    font-size:11px;
+}
+
+.add-row input:focus{
+    border-color:
+        rgba(113,103,255,.7);
+
+    box-shadow:
+        0 0 0 3px rgba(113,103,255,.08);
+}
+
+
+/* =========================================================
+   STUDY STREAK
+========================================================= */
+
+.streak{
+    text-align:center;
+}
+
+.mini-image{
+    width:58px;
+    height:58px;
+
+    object-fit:cover;
+
+    border-radius:14px;
+
+    margin:13px auto 2px;
+
+    display:block;
+
+    border:
+        1px solid #2b3448;
+
+    filter:
+        brightness(.75)
+        saturate(.8);
+}
+
+.flame{
+    font-size:20px;
+
+    margin-top:7px;
+
+    animation:
+        flameFloat 2s ease-in-out infinite;
+}
+
+@keyframes flameFloat{
+    0%,100%{
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+    50%{
+        transform:
+            translateY(-5px)
+            scale(1.08);
+    }
+}
+
+.streak-num{
+    font-size:40px;
+
+    font-weight:900;
+
+    margin-top:2px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff,
+            #a69eff
+        );
+
+    -webkit-background-clip:text;
+    background-clip:text;
+
+    color:transparent;
+}
+
+.streak-label{
+    color:var(--muted);
+
+    font-size:11px;
+}
+
+.days{
+    display:flex;
+
+    justify-content:center;
+
+    gap:7px;
+
+    margin-top:15px;
+}
+
+.day{
+    width:28px;
+    height:28px;
+
+    border-radius:50%;
+
+    display:grid;
+    place-items:center;
+
+    font-size:9px;
+
+    background:#20283a;
+
+    color:#737e94;
+}
+
+.day.on{
+    background:
+        rgba(113,103,255,.2);
+
+    color:#a49eff;
+
+    font-weight:800;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(113,103,255,.18);
+}
+
+
+/* =========================================================
+   EXAMS
+========================================================= */
+
+.exam{
+    margin-top:16px;
+}
+
+.exam-top{
+    display:flex;
+
+    justify-content:space-between;
+
+    font-size:11px;
+
+    font-weight:750;
+}
+
+.exam-date{
+    color:var(--muted);
+
+    font-size:10px;
+
+    margin-top:4px;
+}
+
+.progress{
+    height:8px;
+
+    background:#252d40;
+
+    border-radius:10px;
+
+    overflow:hidden;
+
+    margin-top:10px;
+}
+
+.progress i{
+    display:block;
+
+    height:100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--green),
+            #62dfba
+        );
+
+    border-radius:10px;
+
+    position:relative;
+}
+
+.progress i::after{
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    bottom:0;
+
+    width:35px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.3),
+            transparent
+        );
+
+    animation:
+        progressShine 2.5s infinite;
+}
+
+
+/* =========================================================
+   CHART
+========================================================= */
+
+.chart{
+    height:190px;
+
+    display:flex;
+
+    align-items:flex-end;
+
+    gap:11px;
+
+    padding:18px 5px 0;
+
+    margin-top:5px;
+}
+
+.barcol{
+    flex:1;
+
+    height:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+    gap:6px;
+}
+
+.chartbar{
+    width:70%;
+    max-width:34px;
+
+    border-radius:7px 7px 3px 3px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #8178ff,
+            #554bce
+        );
+
+    min-height:12px;
+
+    box-shadow:
+        0 5px 20px rgba(113,103,255,.14);
+
+    transition:
+        height .7s ease,
+        transform .2s ease;
+}
+
+.chartbar:hover{
+    transform:scaleX(1.08);
+
+    filter:brightness(1.2);
+}
+
+.chartbar.alt{
+    background:
+        linear-gradient(
+            180deg,
+            #61d8b4,
+            #278e75
+        );
+}
+
+.barcol label{
+    color:var(--muted);
+
+    font-size:9px;
+}
+
+.score{
+    color:#9ca6bc;
+
+    font-size:10px;
+}
+
+
+/* =========================================================
+   NOTES
+========================================================= */
+
+.notes textarea{
+    width:100%;
+
+    height:130px;
+
+    resize:vertical;
+
+    margin-top:14px;
+
+    border:
+        1px solid #293247;
+
+    background:#0d131f;
+
+    color:#eef2ff;
+
+    border-radius:10px;
+
+    padding:11px;
+
+    outline:none;
+
+    font:inherit;
+
+    font-size:11px;
+
+    line-height:1.55;
+
+    transition:.2s;
+}
+
+.notes textarea:focus{
+    border-color:
+        rgba(113,103,255,.7);
+
+    box-shadow:
+        0 0 0 3px rgba(113,103,255,.08);
+}
+
+.notes textarea::placeholder,
+.add-row input::placeholder{
+    color:#5f6a81;
+}
+
+.note-footer{
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:8px;
+
+    color:var(--muted);
+
+    font-size:10px;
+}
+
+
+/* =========================================================
+   EXTRA DECORATIVE GLOW
+========================================================= */
+
+.card-glow{
+    position:absolute;
+
+    width:120px;
+    height:120px;
+
+    right:-60px;
+    top:-60px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(113,103,255,.15),
+            transparent 70%
+        );
+
+    pointer-events:none;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1150px){
+
+    .grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .wide{
+        grid-column:span 2;
+    }
+
+}
+
+@media(max-width:850px){
+
+    .layout{
+        grid-template-columns:1fr;
+    }
+
+    .sidebar{
+        position:relative;
+
+        height:auto;
+
+        padding:15px;
+
+        border-right:0;
+        border-bottom:1px solid var(--line);
+    }
+
+    .brand{
+        padding-bottom:15px;
+    }
+
+    .nav{
+        grid-template-columns:
+            repeat(4,1fr);
+    }
+
+    .nav button{
+        text-align:center;
+        padding:9px 5px;
+        font-size:11px;
+    }
+
+    .nav button span{
+        display:block;
+        width:auto;
+        margin-bottom:3px;
+    }
+
+    .nav button.active::before{
+        display:none;
+    }
+
+    .side-bottom{
+        display:none;
+    }
+
+    main{
+        padding:20px;
+    }
+
+}
+
+@media(max-width:650px){
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .wide{
+        grid-column:span 1;
+    }
+
+    .topbar{
+        align-items:flex-start;
+    }
+
+    .greeting h1{
+        font-size:21px;
+    }
+
+    .greeting p{
+        font-size:11px;
+        max-width:240px;
+    }
+
+    .date{
+        display:none;
+    }
+
+    .nav{
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+    .hero-wrap{
+        height:230px;
+    }
+
+    .hero-text{
+        font-size:28px;
+        letter-spacing:2px;
+    }
+
+    .class{
+        grid-template-columns:
+            62px
+            1fr
+            auto;
+    }
+
+}
+
+@media(max-width:430px){
+
+    main{
+        padding:15px;
+    }
+
+    .card{
+        padding:15px;
+    }
+
+    .hero-wrap{
+        height:205px;
+    }
+
+    .hero-text{
+        font-size:23px;
+    }
+
+    .hero-small{
+        font-size:8px;
+        letter-spacing:2px;
+    }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media(prefers-reduced-motion:reduce){
+
+    *,
+    *::before,
+    *::after{
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+        scroll-behavior:auto !important;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+<div class="layout">
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <div class="brand">
+        <div class="brandmark">✦</div>
+        <span>StudyFlow</span>
+    </div>
+
+    <nav class="nav">
+
+        <button class="active">
+            <span>⌂</span>
+            Dashboard
+        </button>
+
+        <button>
+            <span>▦</span>
+            Timetable
+        </button>
+
+        <button>
+            <span>✓</span>
+            Assignments
+        </button>
+
+        <button>
+            <span>◷</span>
+            Pomodoro
+        </button>
+
+        <button>
+            <span>☑</span>
+            Tasks
+        </button>
+
+        <button>
+            <span>▥</span>
+            Progress
+        </button>
+
+        <button>
+            <span>✎</span>
+            Notes
+        </button>
+
+    </nav>
+
+
+    <div class="side-bottom">
+
+        <strong>Weekly goal</strong>
+
+        12h 40m studied this week
+
+        <div class="bar">
+            <div
+                class="fill"
+                style="width:79%"
+            ></div>
+        </div>
+
+        <div class="side-goal">
+            79% of your 16h target
+        </div>
+
+    </div>
+
+</aside>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main>
+
+
+<!-- =====================================================
+     TOP BAR
+===================================================== -->
+
+<header class="topbar">
+
+    <div class="greeting">
+
+        <h1>
+            Good morning, Ananya 👋
+        </h1>
+
+        <p>
+            Stay focused. Small progress every day adds up. 📚✨
+        </p>
+
+    </div>
+
+
+    <div class="profile">
+
+        <div class="date">
+            MON, 28 SEP 2026
+        </div>
+
+        <div
+            class="avatar"
+            id="avatar"
+        >
+            AS
+        </div>
+
+
+        <div
+            class="profile-menu"
+            id="profileMenu"
+        >
+
+            <button id="settingsBtn">
+                ⚙️ Settings
+            </button>
+
+            <button id="profileBtn">
+                👤 My Profile
+            </button>
+
+            <button
+                class="logout"
+                id="logoutBtn"
+            >
+                ↪ Logout
+            </button>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     DASHBOARD GRID
+===================================================== -->
+
+<section class="grid">
+
+
+<!-- =====================================================
+     TODAY'S TIMETABLE / HERO
+===================================================== -->
+
+<div class="card wide image-card">
+
+    <div class="card-glow"></div>
+
+    <h3>
+        Today's timetable
+    </h3>
+
+    <div class="sub">
+        Monday · 4 classes planned · 📅 Stay organized
+    </div>
+
+
+    <div class="hero-wrap">
+
+        <img
+            class="hero-image"
+            src="Now%20or%20Never.jpg"
+            alt="Now or Never study motivation"
+        >
+
+        <div class="hero-text">
+            NOW OR NEVER
+        </div>
+
+        <div class="hero-small">
+            Focus • Discipline • Progress
+        </div>
+
+    </div>
+
+
+    <div class="timetable">
+
+
+        <div class="class now">
+
+            <div class="time">
+                09:00–10:00
+            </div>
+
+            <div>
+                <div class="subject">
+                    IILP
+                </div>
+
+                <div class="teacher">
+                    Prof. Rishabh 
+                </div>
+            </div>
+
+            <span class="tag">
+                NOW
+            </span>
+
+        </div>
+
+
+        <div class="class">
+
+            <div class="time">
+                10:15–11:15
+            </div>
+
+            <div>
+                <div class="subject">
+                    PPS
+                </div>
+
+                <div class="teacher">
+                    Prof.  Preeti Garg
+                </div>
+            </div>
+
+            <span class="tag green">
+                UP NEXT
+            </span>
+
+        </div>
+
+
+        <div class="class">
+
+            <div class="time">
+                12:00–13:00
+            </div>
+
+            <div>
+                <div class="subject">
+                    CFE
+                </div>
+
+                <div class="teacher">
+                    Prof.Kuldeep Sharma
+                </div>
+            </div>
+
+            <span class="tag orange">
+                CLASS
+            </span>
+
+        </div>
+
+
+        <div class="class">
+
+            <div class="time">
+                14:00–15:00
+            </div>
+
+            <div>
+                <div class="subject">
+                    Foreign Language
+                </div>
+
+                <div class="teacher">
+                    Prof. Ayush Sharma
+                </div>
+            </div>
+
+            <span class="tag orange">
+                CLASS
+            </span>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ASSIGNMENTS
+===================================================== -->
+
+<div class="card">
+
+    <div class="card-glow"></div>
+
+    <h3>
+        Assignment tracker
+    </h3>
+
+    <div class="sub">
+        4 active assignments
+    </div>
+
+
+    <div class="assignments">
+
+
+        <div class="assignment">
+
+            <div>
+
+                <div class="assignment-title">
+                    Maths Assignment
+                </div>
+
+                <small>
+                    Due tomorrow
+                </small>
+
+                <div class="bar">
+                    <div
+                        class="fill"
+                        style="width:78%"
+                    ></div>
+                </div>
+
+            </div>
+
+            <div class="pct">
+                78%
+            </div>
+
+        </div>
+
+
+        <div class="assignment">
+
+            <div>
+
+                <div class="assignment-title">
+                    Japanese Poster
+                </div>
+
+                <small>
+                    Due 30 Sep
+                </small>
+
+                <div class="bar">
+                    <div
+                        class="fill"
+                        style="width:55%"
+                    ></div>
+                </div>
+
+            </div>
+
+            <div class="pct">
+                55%
+            </div>
+
+        </div>
+
+
+        <div class="assignment">
+
+            <div>
+
+                <div class="assignment-title">
+                    DLD Worksheet
+                </div>
+
+                <small>
+                    Due 2 Oct
+                </small>
+
+                <div class="bar">
+                    <div
+                        class="fill"
+                        style="width:30%"
+                    ></div>
+                </div>
+
+            </div>
+
+            <div class="pct">
+                30%
+            </div>
+
+        </div>
+
+
+        <div class="assignment">
+
+            <div>
+
+                <div class="assignment-title">
+                    D&R Practice Sheet
+                </div>
+
+                <small>
+                    Due 4 Oct
+                </small>
+
+                <div class="bar">
+                    <div
+                        class="fill"
+                        style="width:15%"
+                    ></div>
+                </div>
+
+            </div>
+
+            <div class="pct">
+                15%
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     POMODORO
+===================================================== -->
+
+<div class="card timer">
+
+    <h3>
+        Pomodoro focus
+    </h3>
+
+    <div class="sub">
+        Deep work session
+    </div>
+
+
+    <div
+        class="timer-circle"
+        id="timerCircle"
+    >
+
+        <div class="timer-inner">
+
+            <div>
+
+                <div
+                    class="timer-time"
+                    id="timer"
+                >
+                    25:00
+                </div>
+
+                <div class="timer-mode">
+                    FOCUS
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="timer-actions">
+
+        <button
+            class="btn primary"
+            id="start"
+        >
+            Start
+        </button>
+
+        <button
+            class="btn ghost"
+            id="reset"
+        >
+            Reset
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     TODO
+===================================================== -->
+
+<div class="card">
+
+    <h3>
+        To-do list
+    </h3>
+
+    <div class="sub">
+        Priorities for today
+    </div>
+
+
+    <div
+        class="todo-list"
+        id="todos"
+    >
+
+        <label class="todo">
+
+            <input type="checkbox">
+
+            <span>
+                Complete Maths assignment
+            </span>
+
+        </label>
+
+
+        <label class="todo">
+
+            <input type="checkbox">
+
+            <span>
+                Finish Japanese poster layout
+            </span>
+
+        </label>
+
+
+        <label class="todo">
+
+            <input type="checkbox">
+
+            <span>
+                Prepare for DLD CA
+            </span>
+
+        </label>
+
+
+        <label class="todo">
+
+            <input type="checkbox">
+
+            <span>
+                Do D&R practice sheet
+            </span>
+
+        </label>
+
+    </div>
+
+
+    <div class="add-row">
+
+        <input
+            id="todoInput"
+            placeholder="Add a task..."
+        >
+
+        <button
+            class="btn primary"
+            id="addTodo"
+        >
+            +
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     STREAK
+===================================================== -->
+
+<div class="card streak">
+
+    <h3>
+        Study streak
+    </h3>
+
+
+    <img
+        class="mini-image"
+        src="Now%20or%20Never.jpg"
+        alt="Study motivation"
+    >
+
+
+    <div class="flame">
+        🔥
+    </div>
+
+    <div class="streak-num">
+        12
+    </div>
+
+    <div class="streak-label">
+        days in a row
+    </div>
+
+
+    <div class="days">
+
+        <div class="day on">M</div>
+        <div class="day on">T</div>
+        <div class="day on">W</div>
+        <div class="day on">T</div>
+        <div class="day on">F</div>
+        <div class="day on">S</div>
+        <div class="day">S</div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     UPCOMING EXAMS
+===================================================== -->
+
+<div class="card">
+
+    <h3>
+        Upcoming exams
+    </h3>
+
+    <div class="sub">
+        Major assessments
+    </div>
+
+
+    <div class="exam">
+
+        <div class="exam-top">
+
+            <span>
+                Data Structures
+            </span>
+
+            <span>
+                18 days
+            </span>
+
+        </div>
+
+        <div class="exam-date">
+            16 October 2026 · 10:00 AM
+        </div>
+
+        <div class="progress">
+            <i style="width:64%"></i>
+        </div>
+
+        <div
+            class="sub"
+            style="margin-top:6px"
+        >
+            64% preparation complete
+        </div>
+
+    </div>
+
+
+    <div class="exam">
+
+        <div class="exam-top">
+
+            <span>
+                Database Systems
+            </span>
+
+            <span>
+                25 days
+            </span>
+
+        </div>
+
+        <div class="exam-date">
+            23 October 2026 · 2:00 PM
+        </div>
+
+        <div class="progress">
+            <i style="width:42%"></i>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PROGRESS
+===================================================== -->
+
+<div class="card wide">
+
+    <div class="card-glow"></div>
+
+    <h3>
+        Progress overview
+    </h3>
+
+    <div class="sub">
+        Study hours by day · this week
+    </div>
+
+
+    <div class="chart">
+
+
+        <div class="barcol">
+
+            <span class="score">
+                1.8h
+            </span>
+
+            <div
+                class="chartbar"
+                style="height:62%"
+            ></div>
+
+            <label>
+                Mon
+            </label>
+
+        </div>
+
+
+        <div class="barcol">
+
+            <span class="score">
+                2.4h
+            </span>
+
+            <div
+                class="chartbar alt"
+                style="height:82%"
+            ></div>
+
+            <label>
+                Tue
+            </label>
+
+        </div>
+
+
+        <div class="barcol">
+
+            <span class="score">
+                1.6h
+            </span>
+
+            <div
+                class="chartbar"
+                style="height:55%"
+            ></div>
+
+            <label>
+                Wed
+            </label>
+
+        </div>
+
+
+        <div class="barcol">
+
+            <span class="score">
+                2.7h
+            </span>
+
+            <div
+                class="chartbar alt"
+                style="height:93%"
+            ></div>
+
+            <label>
+                Thu
+            </label>
+
+        </div>
+
+
+        <div class="barcol">
+
+            <span class="score">
+                1.9h
+            </span>
+
+            <div
+                class="chartbar"
+                style="height:66%"
+            ></div>
+
+            <label>
+                Fri
+            </label>
+
+        </div>
+
+
+        <div class="barcol">
+
+            <span class="score">
+                2.2h
+            </span>
+
+            <div
+                class="chartbar alt"
+                style="height:76%"
+            ></div>
+
+            <label>
+                Sat
+            </label>
+
+        </div>
+
+
+        <div class="barcol">
+
+            <span class="score">
+                0h
+            </span>
+
+            <div
+                class="chartbar"
+                style="height:12%"
+            ></div>
+
+            <label>
+                Sun
+            </label>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     NOTES
+===================================================== -->
+
+<div class="card notes">
+
+    <h3>
+        Quick notes
+    </h3>
+
+    <div class="sub">
+        Capture ideas before they disappear
+    </div>
+
+
+    <textarea
+        id="notes"
+        placeholder="Write a note, formula, reminder, or idea..."
+    >Remember: revise normalization examples before the DBMS class.</textarea>
+
+
+    <div class="note-footer">
+
+        <span>
+            Auto-saved locally
+        </span>
+
+        <span id="count">
+            0 characters
+        </span>
+
+    </div>
+
+</div>
+
+
+</section>
+
+</main>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script>
+
+
+/* =========================================================
+   TODO CHECKBOXES
+========================================================= */
+
+function attachTodoCheckbox(checkbox){
+
+    checkbox.addEventListener(
+        "change",
+        function(){
+
+            this
+                .parentElement
+                .classList
+                .toggle(
+                    "done",
+                    this.checked
+                );
+
+        }
+    );
+
+}
+
+
+document
+    .querySelectorAll(".todo input")
+    .forEach(attachTodoCheckbox);
+
+
+/* =========================================================
+   ADD TODO
+========================================================= */
+
+const addTodo =
+    document.getElementById("addTodo");
+
+const todoInput =
+    document.getElementById("todoInput");
+
+const todos =
+    document.getElementById("todos");
+
+
+function escapeHTML(text){
+
+    return text.replace(
+        /[&<>"']/g,
+        function(char){
+
+            const entities = {
+
+                "&":"&amp;",
+                "<":"&lt;",
+                ">":"&gt;",
+                '"':"&quot;",
+                "'":"&#039;"
+
+            };
+
+            return entities[char];
+
+        }
+    );
+
+}
+
+
+function createTodo(text){
+
+    const label =
+        document.createElement("label");
+
+    label.className = "todo";
+
+    label.innerHTML = `
+        <input type="checkbox">
+        <span>${escapeHTML(text)}</span>
+    `;
+
+    const checkbox =
+        label.querySelector("input");
+
+    attachTodoCheckbox(checkbox);
+
+    return label;
+
+}
+
+
+function addNewTodo(){
+
+    const value =
+        todoInput.value.trim();
+
+    if(!value){
+        todoInput.focus();
+        return;
+    }
+
+    const todo =
+        createTodo(value);
+
+    todos.appendChild(todo);
+
+    todoInput.value = "";
+
+    todoInput.focus();
+
+}
+
+
+addTodo.addEventListener(
+    "click",
+    addNewTodo
+);
+
+
+todoInput.addEventListener(
+    "keydown",
+    function(event){
+
+        if(event.key === "Enter"){
+            addNewTodo();
+        }
+
+    }
+);
+
+
+/* =========================================================
+   POMODORO TIMER
+========================================================= */
+
+const timerElement =
+    document.getElementById("timer");
+
+const startButton =
+    document.getElementById("start");
+
+const resetButton =
+    document.getElementById("reset");
+
+const timerCircle =
+    document.getElementById("timerCircle");
+
+
+let totalSeconds = 25 * 60;
+
+let timerInterval = null;
+
+let running = false;
+
+
+function formatTime(seconds){
+
+    const minutes =
+        Math.floor(seconds / 60);
+
+    const remainingSeconds =
+        seconds % 60;
+
+    return (
+        String(minutes).padStart(2,"0")
+        +
+        ":"
+        +
+        String(remainingSeconds).padStart(2,"0")
+    );
+
+}
+
+
+function updateTimer(){
+
+    timerElement.textContent =
+        formatTime(totalSeconds);
+
+
+    const total =
+        25 * 60;
+
+    const progress =
+        ((total - totalSeconds) / total) * 100;
+
+
+    timerCircle.style.background = `
+        conic-gradient(
+            #7167ff ${progress}%,
+            #252d40 ${progress}% 100%
+        )
+    `;
+
+}
+
+
+function startTimer(){
+
+    if(running){
+        return;
+    }
+
+    running = true;
+
+    startButton.textContent =
+        "Pause";
+
+
+    timerInterval =
+        setInterval(
+            function(){
+
+                if(totalSeconds > 0){
+
+                    totalSeconds--;
+
+                    updateTimer();
+
+                }
+                else{
+
+                    clearInterval(
+                        timerInterval
+                    );
+
+                    timerInterval = null;
+
+                    running = false;
+
+                    startButton.textContent =
+                        "Start";
+
+                    alert(
+                        "Pomodoro complete! 🎉 Take a short break."
+                    );
+
+                }
+
+            },
+            1000
+        );
+
+}
+
+
+function pauseTimer(){
+
+    clearInterval(
+        timerInterval
+    );
+
+    timerInterval = null;
+
+    running = false;
+
+    startButton.textContent =
+        "Start";
+
+}
+
+
+startButton.addEventListener(
+    "click",
+    function(){
+
+        if(running){
+            pauseTimer();
+        }
+        else{
+            startTimer();
+        }
+
+    }
+);
+
+
+resetButton.addEventListener(
+    "click",
+    function(){
+
+        clearInterval(
+            timerInterval
+        );
+
+        timerInterval = null;
+
+        running = false;
+
+        totalSeconds = 25 * 60;
+
+        startButton.textContent =
+            "Start";
+
+        updateTimer();
+
+    }
+);
+
+
+updateTimer();
+
+
+/* =========================================================
+   NOTES CHARACTER COUNTER
+========================================================= */
+
+const notes =
+    document.getElementById("notes");
+
+const count =
+    document.getElementById("count");
+
+
+function updateCharacterCount(){
+
+    count.textContent =
+        notes.value.length
+        +
+        " characters";
+
+}
+
+
+notes.addEventListener(
+    "input",
+    updateCharacterCount
+);
+
+updateCharacterCount();
+
+
+/* =========================================================
+   SAVE NOTES LOCALLY
+========================================================= */
+
+const savedNotes =
+    localStorage.getItem(
+        "studyflowNotes"
+    );
+
+
+if(savedNotes !== null){
+
+    notes.value =
+        savedNotes;
+
+    updateCharacterCount();
+
+}
+
+
+notes.addEventListener(
+    "input",
+    function(){
+
+        localStorage.setItem(
+            "studyflowNotes",
+            notes.value
+        );
+
+    }
+);
+
+
+/* =========================================================
+   PROFILE DROPDOWN
+========================================================= */
+
+const avatar =
+    document.getElementById("avatar");
+
+const profileMenu =
+    document.getElementById("profileMenu");
+
+
+avatar.addEventListener(
+    "click",
+    function(event){
+
+        event.stopPropagation();
+
+        profileMenu.classList.toggle(
+            "show"
+        );
+
+    }
+);
+
+
+document.addEventListener(
+    "click",
+    function(event){
+
+        if(
+            !profileMenu.contains(event.target)
+            &&
+            event.target !== avatar
+        ){
+
+            profileMenu.classList.remove(
+                "show"
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   PROFILE BUTTONS
+========================================================= */
+
+document
+    .getElementById("settingsBtn")
+    .addEventListener(
+        "click",
+        function(){
+
+            alert(
+                "Settings panel coming soon! ⚙️"
+            );
+
+        }
+    );
+
+
+document
+    .getElementById("profileBtn")
+    .addEventListener(
+        "click",
+        function(){
+
+            alert(
+                "Student Profile — Ananya Sharma 👩‍💻"
+            );
+
+        }
+    );
+
+
+document
+    .getElementById("logoutBtn")
+    .addEventListener(
+        "click",
+        function(){
+
+            alert(
+                "You have been logged out."
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   SIDEBAR NAVIGATION
+========================================================= */
+
+const navButtons =
+    document.querySelectorAll(
+        ".nav button"
+    );
+
+
+navButtons.forEach(
+    function(button){
+
+        button.addEventListener(
+            "click",
+            function(){
+
+                navButtons.forEach(
+                    function(item){
+                        item.classList.remove(
+                            "active"
+                        );
+                    }
+                );
+
+                button.classList.add(
+                    "active"
+                );
+
+            }
+        );
+
+    }
+);
+
+
+/* =========================================================
+   CARD STAGGER ANIMATION
+========================================================= */
+
+document
+    .querySelectorAll(".card")
+    .forEach(
+        function(card,index){
+
+            card.style.animationDelay =
+                (index * 0.05)
+                +
+                "s";
+
+        }
+    );
+
+
+</script>
+
+</body>
+</html>
